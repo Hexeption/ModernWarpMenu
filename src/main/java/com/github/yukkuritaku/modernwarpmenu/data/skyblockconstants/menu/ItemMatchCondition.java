@@ -103,6 +103,7 @@ public record ItemMatchCondition(int inventorySlot,
             }*/
 
             CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+            LOGGER.info(tag.toString());
 
             if (!StringUtil.isNullOrEmpty(this.skyBlockItemId) || !this.skyBlockItemIdList.isEmpty()) {
                 Optional<CompoundTag> extraAttributes = tag.getCompound("ExtraAttributes");

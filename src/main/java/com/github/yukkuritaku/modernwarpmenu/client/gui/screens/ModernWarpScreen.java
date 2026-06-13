@@ -90,7 +90,7 @@ public class ModernWarpScreen extends CustomContainerScreen {
         this.warpMenu = warpMenu;
         this.layout = layout;
         this.chestInventory = (SimpleContainer) ((ChestMenu) playerInventory.player.containerMenu).getContainer();
-        this.menu = menu;
+        this.menu = (ChestMenu) playerInventory.player.containerMenu;
         if (SettingsManager.get().general.warpMenuEnabled) {
             /*
             Render a blank custom UI before buttons are enabled to prevent the vanilla chest UI from displaying
@@ -98,8 +98,6 @@ public class ModernWarpScreen extends CustomContainerScreen {
              */
             setCustomUIState(true, true);
             this.inventoryListener = new InventoryChangeListener(new ChestItemChangeCallback(this));
-            LOGGER.info("<init> addListener");
-            this.menu.addSlotListener(this.inventoryListener);
         }
         this.originalTitle = Component.literal(warpMenu.getDisplayName());
     }
@@ -131,16 +129,18 @@ public class ModernWarpScreen extends CustomContainerScreen {
                 boolean menuItemsMatch = GameCheckUtils.menuItemsMatch(this.warpMenu, this.chestInventory);
                 setCustomUIState(menuItemsMatch, menuItemsMatch);
                 updateButtonStates();
-                this.configButton.setVisible(menuItemsMatch);
+                if (this.configButton != null) {
+                    this.configButton.setVisible(menuItemsMatch);
+                }
                 if (!menuItemsMatch) {
                     ChatUtils.sendMessageWithModNamePrefix("Warning: Chest has correct name but items mismatched");
                 }
             } catch (RuntimeException e) {
+                LOGGER.error("onChestItemChange Exception!", e);
                 ChatUtils.sendErrorMessageWithCopyableThrowable("modernwarpmenu.errors.modernWarpScreen.itemMatchFailed", e);
                 setCustomUIState(false, false);
             } finally {
                 // schedule is required, because throw ConcurrentModificationException
-                assert this.minecraft != null : "Minecraft is null";
                 this.minecraft.schedule(() -> this.menu.removeSlotListener(this.inventoryListener));
             }
         }
@@ -262,6 +262,7 @@ public class ModernWarpScreen extends CustomContainerScreen {
         this.disabledChestValueButton = false;
     }
 
+
     @Override
     protected void init() {
         super.init();
@@ -282,6 +283,7 @@ public class ModernWarpScreen extends CustomContainerScreen {
                 ChatUtils.sendMessageWithModNamePrefix(Component.translatable(
                         "modernwarpmenu.messages.modernWarpMenuEnabled").withStyle(ChatFormatting.GREEN));
                 if (GameCheckUtils.menuItemsMatch(this.warpMenu, this.chestInventory)) {
+                    LOGGER.info("init() -> menuItemsMatch()");
                     setCustomUIState(true, true);
                 } else {
                     ModernWarpMenuState.setOpenConfigMenuRequested(true);
@@ -290,6 +292,17 @@ public class ModernWarpScreen extends CustomContainerScreen {
                 }
             }
         }, Supplier::get);
+
+        if (this.inventoryListener != null) {
+            LOGGER.info("init() addSlotListener");
+            /*
+            Moved addSlotListener() after constructor and this.configButton init.
+            in 26.1.2, if added Slot Listener, it triggers all added SlotListeners and throwing null on configButton,
+            and menuItemMatch fail (ItemStack returned as Empty) because too fast to call this method. (Maybe?)
+             */
+            this.menu.addSlotListener(this.inventoryListener);
+        }
+
         this.addRenderableWidget(this.configButton);
         if (this.lastSlotIndexToCheck > this.chestInventory.getContainerSize()) {
             ChatUtils.sendMessageWithModNamePrefix(Component.translatable(

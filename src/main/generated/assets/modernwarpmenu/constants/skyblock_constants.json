@@ -10,14 +10,6 @@
         "inventory_slot": 49,
         "item_id": "minecraft:barrier",
         "item_name": "Close"
-      },
-      {
-        "inventory_slot": 53,
-        "item_id_list": [
-          "minecraft:map",
-          "minecraft:filled_map"
-        ],
-        "item_name": "Paper Icons"
       }
     ],
     "porhtal": [
