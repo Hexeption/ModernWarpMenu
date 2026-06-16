@@ -62,6 +62,7 @@ repositories {
 		url = 'https://maven.parchmentmc.org'
 	}
 	maven { url "https://maven.shedaniel.me" }
+    maven { url 'https://maven.operationpotato.com/snapshots' }
 
 	//conditional-mixin https://github.com/Fallen-Breath/conditional-mixin
 	maven { url 'https://maven.fallenbreath.me/releases' }
@@ -83,6 +84,7 @@ dependencies {
 	implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 	compileOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:${project.rei_version}"
 	compileOnly "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
+    compileOnly "com.operationpotato:skyblock-item-list-api:${project.itemlist_version}"
 	compileOnly "maven.modrinth:skyblocker-liap:${project.skyblocker_version}"
 	include(implementation("me.fallenbreath:conditional-mixin-fabric:${project.conditional_mixin_version}"))
 	//include(implementation("net.hypixel:mod-api:${project.hypixel_mod_api_version}"))
